@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bite Me!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="img/waffle.png">s
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a2e; 
+            color: #e0e0e0; 
+            overflow-x: hidden;
+            cursor: none; 
+        }
+        
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background-color: #ff69b4;
+            border-radius: 50%;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.2s ease-out;
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ff69b4;
+            border-radius: 50%;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 9998;
+            transition: width 0.3s, height 0.3s, background-color 0.3s, border-color 0.3s;
+            transition-timing-function: ease-out;
+        }
+
+        .custom-cursor.pointer {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 105, 180, 0.2);
+            border-color: #8a2be2;
+        }
+
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #8a2be2, #ff69b4);
+            border-radius: 10px;
+            border: 2px solid #1a1a2e;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #a15df6, #ff89c4);
+        }
+
+        .neon-glow {
+            text-shadow: 0 0 5px rgba(255, 105, 180, 0.7), 0 0 10px rgba(255, 105, 180, 0.7), 0 0 15px rgba(255, 105, 180, 0.7);
+        }
+
+        .neon-glow-purple {
+             text-shadow: 0 0 5px rgba(138, 43, 226, 0.7), 0 0 10px rgba(138, 43, 226, 0.7), 0 0 15px rgba(138, 43, 226, 0.7);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        #star-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 5s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-gradient {
+            background: linear-gradient(145deg, #2c2c54, #1a1a2e);
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+        }
+        
+        .song-item {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .song-item.active-song {
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+            border-color: #00ffff !important;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="cursor-dot"></div>
+    <div class="custom-cursor"></div>
+
+    <div id="star-container"></div>
+
+    <header class="bg-black/30 backdrop-blur-md fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-2xl font-black text-white neon-glow-purple tracking-widest">
+                    Bite Me!
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#about" class="text-white hover:text-pink-400 transition duration-300">About</a>
+                    <a href="#menu" class="text-white hover:text-pink-400 transition duration-300">Menu</a>
+                    <a href="#music" class="text-white hover:text-pink-400 transition duration-300">Music</a>
+                    <a href="#events" class="text-white hover:text-pink-400 transition duration-300">Events</a>
+                    <a href="#gallery" class="text-white hover:text-pink-400 transition duration-300">Gallery</a>
+                    <a href="#contact" class="text-white hover:text-pink-400 transition duration-300">Contact</a>
+                </nav>
+                 <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden mt-4">
+                <a href="#about" class="block py-2 text-white hover:text-pink-400">About</a>
+                <a href="#menu" class="block py-2 text-white hover:text-pink-400">Menu</a>
+                <a href="#music" class="block py-2 text-white hover:text-pink-400">Music</a>
+                <a href="#events" class="block py-2 text-white hover:text-pink-400">Events</a>
+                <a href="#gallery" class="block py-2 text-white hover:text-pink-400">Gallery</a>
+                <a href="#contact" class="block py-2 text-white hover:text-pink-400">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="home" class="min-h-screen flex items-center justify-center relative pt-16">
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="text-center z-10 p-6">
+
+            <h1 class="text-5xl md:text-7xl font-black text-white uppercase tracking-wider floating neon-glow" style="animation-delay: 0.2s;">
+                BITE ME!
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-300 mt-4 mb-8 font-light floating" style="animation-delay: 0.4s;">
+                Find your Connection, One Waffle at a time
+            </p>
+            <a href="#menu" class="bg-pink-500 text-white font-bold py-3 px-8 rounded-full text-lg uppercase tracking-wider btn-primary floating" style="animation-delay: 0.6s;">
+                Explore Menu
+            </a>
+        </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2">
+            <svg class="w-8 h-8 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </section>
+
+    <main class="container mx-auto px-6 py-16 md:py-24 space-y-20 md:space-y-32">
+
+        <section id="music" class="scroll-animate">
+            <h2 class="text-4xl font-bold text-center mb-6 neon-glow-purple">Pick Your Vibe</h2>
+            <div id="now-playing-container" class="text-center mb-8 h-8">
+                 <p class="text-lg text-cyan-300 transition-opacity duration-500">Now Playing: <span id="now-playing-song" class="font-bold">None</span></p>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="FEVER">FEVER</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Drunk-Dazed">Drunk-Dazed</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Bite Me">Bite Me</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Sweet Venom">Sweet Venom</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Polaroid Love">Polaroid Love</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Given-Taken">Given-Taken</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Tamed-Dashed">Tamed-Dashed</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Future Perfect">Future Perfect</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="XO">XO</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="No Doubt">No Doubt</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Bad Desire">Bad Desire</div>
+                <div class="song-item card-gradient p-4 rounded-lg shadow-lg border-2 border-transparent text-center" data-song="Shout Out">Shout Out</div>
+            </div>
+            <p class="text-center text-sm text-gray-400 mt-4">Click a song to play!</p>
+            <audio id="audio-player" loop></audio>
+        </section>
+
+        <section id="about" class="scroll-animate">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="flex flex-col items-center">
+                    <img src="img/enlogo.png" alt="ENHYPEN Logo" class="mb-4 h-20">
+                    <div id="image-carousel" class="relative w-full h-80 md:h-96 rounded-lg shadow-2xl overflow-hidden">
+                        <img src="img/1.jpg" alt="ENHYPEN Image 1" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-100">
+                        <img src="img/2.jpg" alt="ENHYPEN Image 2" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="img/3.jpg" alt="ENHYPEN Image 3" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="img/4.jpg" alt="ENHYPEN Image 4" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="img/5.jpg" alt="ENHYPEN Image 5" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="img/6.jpg" alt="ENHYPEN Image 6" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                        <img src="img/7.jpg" alt="ENHYPEN Image 7" class="carousel-image absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out opacity-0">
+                    </div>
+                </div>
+                <div class="text-center md:text-left">
+                    <h2 class="text-4xl font-bold mb-4 neon-glow-purple">About Bite Me!</h2>
+                    <p class="mb-4 text-lg">
+                        Welcome to Bite Me!, the ultimate haven for Engenes and non Engenes and waffle lovers alike! Born from a passion for electrifying music and tasty waffles, our shop is a place to connect, unwind, and share your love for your favorite idols.
+                    </p>
+                    <p class="text-lg">
+                        We play the latest hits and classic bops, host fan events, and serve up delicious waffles named after your favorite songs and idol. Bite Me!, A sweet connection worth sharing.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="menu" class="scroll-animate">
+            <h2 class="text-4xl font-bold text-center mb-12 neon-glow">ENHYPEN's Eat Me Up!</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-red-400">Sweet Venom</h3>
+                    <p class="text-gray-400">Inspired by the allure of a dangerous delight. Our Sweet Venom Waffle features a rich, dark cocoa-infused waffle, generously drizzled with chocolate, finished with a dusting of cocoa powder.</p>
+                </div>
+                <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-purple-400">Dark Moon</h3>
+                    <p class="text-gray-400">Embrace the deepening connection with our Dark Blood Waffle. This deep chocolate waffle, as captivating as a lunar eclipse, is topped with luscious strawberry that will make you feel like your on top of the moon. </p>
+                </div>
+                <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-pink-400">Future Perfect</h3>
+                    <p class="text-gray-400">A waffle masterpiece, perfectly crafted to steal the spotlight. The Future Perfect Waffle is our ultimate creation, a waffle generously spread with luscious, creamy Biscoff spread and topped with crushed Biscoff cookies for an irresistible crunch. </p>
+                </div>
+                 <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-cyan-400">Bite Me (Signature Eat me up)</h3>
+                    <p class="text-gray-400">Our shop's namesake and a taste of destiny. The Signature Bite Me Waffle invites you to experience connection at first bite. This golden, perfectly crisp waffle is generously slathered with rich, warm Nutella, then topped with fresh, perfectly ripe banana slices. It's a sweet, comforting, and utterly irresistible classic made unforgettable – a truly fated flavor you'll crave.</p>
+                </div>
+                 <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-yellow-400">No Doubt</h3>
+                    <p class="text-gray-400">"When there's no doubt about what you crave, our No Doubt Waffle delivers pure, sweet satisfaction. This classic, fluffy buttermilk waffle is loaded with fresh, vibrant strawberry slices and generously drizzled with a sweet strawberry jam.</p>
+                </div>
+                 <div class="card-gradient p-6 rounded-lg shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold mb-2 text-green-400">Polaroid Love</h3>
+                    <p class="text-gray-400">Capture a moment of pure comfort with our Polaroid Love Waffle. This beautifully golden, fluffy waffle is served simply, yet perfectly, with a dollop of creamy butter and a generous pour of golden maple syrup. It's a sweet, comforting embrace, just like a cherished memory..</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="events" class="scroll-animate">
+            <h2 class="text-4xl font-bold text-center mb-12 neon-glow-purple">Upcoming Events</h2>
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="card-gradient p-6 rounded-lg shadow-lg flex flex-col md:flex-row items-center gap-6 transform hover:shadow-2xl hover:shadow-purple-500/20 transition-shadow duration-300">
+                    <div class="text-center md:text-left">
+                        <p class="text-lg font-bold text-purple-400">Opening Soon!</p>
+                        <p class="text-sm">:></p>
+                    </div>
+                    <div class="border-l-2 border-purple-400 pl-6">
+                        <h3 class="text-2xl font-bold">Grand Opening of Bite Me! Waffles</h3>
+                        <p class="text-gray-400">Get ready, ENGENEs! Your new favorite destination is almost here! Bite Me Waffles, an ENHYPEN-themed waffle shop, is opening soon! Prepare for a fated connection with our delicious waffles – from the sweet allure of 'Sweet Venom' to the comforting embrace of 'Polaroid Love.' Follow us for opening dates and sneak peeks! We can't wait to connect with you, one bite at a time."</p>
+                    </div>
+                </div>
+                <div class="card-gradient p-6 rounded-lg shadow-lg flex flex-col md:flex-row items-center gap-6 transform hover:shadow-2xl hover:shadow-pink-500/20 transition-shadow duration-300">
+                    <div class="text-center md:text-left">
+                        <p class="text-lg font-bold text-pink-400">Opening Soon!</p>
+                        <p class="text-sm">:></p>
+                    </div>
+                    <div class="border-l-2 border-pink-400 pl-6">
+                        <h3 class="text-2xl font-bold">A Fated Connection Awaits!</h3>
+                        <p class="text-gray-400">Dear ENGENEs and Waffle Lovers,
+
+We are thrilled to announce that Bite Me Waffles, a unique ENHYPEN-themed waffle shop, will be opening its doors very soon! Get ready to immerse yourself in a world where delicious flavors meet the captivating spirit of ENHYPEN.
+
+Indulge in our carefully crafted menu, featuring waffles inspired by your favorite songs like the alluring 'Sweet Venom,' the comforting 'Polaroid Love,' and our signature 'Bite Me' banana Nutella sensation. Every bite is designed to create a sweet connection.
+
+Follow us on social media soon for exclusive sneak peeks, countdowns, and our official grand opening date. We can't wait to share this exciting new dimension with you!
+
+Find your connection, one bite at a time.
+
+Bite Me Waffles - Coming Soon!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery" class="scroll-animate">
+            <h2 class="text-4xl font-bold text-center mb-12 neon-glow">ENHYPEN</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="overflow-hidden rounded-lg shadow-lg group">
+                    <img src="img/sung1.jpg" alt="Gallery image 1" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg shadow-lg group col-span-1 md:col-span-2">
+                    <img src="img/en.jpg" alt="Gallery image 2" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg shadow-lg group">
+                    <img src="img/sung2.jpg" alt="Gallery image 3" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg shadow-lg group col-span-2 md:col-span-2">
+                     <img src="img/en5.jpg" alt="Gallery image 4" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg shadow-lg group">
+                    <img src="img/en4.jpg" alt="Gallery image 5" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="overflow-hidden rounded-lg shadow-lg group">
+                     <img src="img/en6.jpg" alt="Gallery image 6" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact" class="scroll-animate">
+            <div class="card-gradient p-8 md:p-12 rounded-lg shadow-2xl max-w-4xl mx-auto">
+                 <h2 class="text-4xl font-bold text-center mb-8 neon-glow-purple">Get In Touch</h2>
+                 <div class="grid md:grid-cols-2 gap-12">
+                     <div>
+                         <h3 class="text-xl font-bold text-pink-400 mb-4">Visit Us</h3>
+                         <p>Di ko alam yung location T_T</p>
+                         <p>Philippines</p>
+                         
+                         <h3 class="text-xl font-bold text-pink-400 mt-6 mb-4">Hours</h3>
+                         <p>Monday - Friday: 9am - 10pm</p>
+                         <p>Saturday - Sunday: 9am - 10pm</p>
+                     </div>
+                     <form id="contact-form">
+                         <div class="mb-4">
+                             <input type="text" placeholder="Your Name" required class="w-full bg-gray-800/50 rounded border border-gray-700 p-3 focus:border-pink-400 focus:ring-2 focus:ring-pink-400 outline-none transition-colors duration-200">
+                         </div>
+                         <div class="mb-4">
+                             <input type="email" placeholder="Your Email" required class="w-full bg-gray-800/50 rounded border border-gray-700 p-3 focus:border-pink-400 focus:ring-2 focus:ring-pink-400 outline-none transition-colors duration-200">
+                         </div>
+                         <div class="mb-4">
+                             <textarea placeholder="Your Message" rows="4" required class="w-full bg-gray-800/50 rounded border border-gray-700 p-3 focus:border-pink-400 focus:ring-2 focus:ring-pink-400 outline-none transition-colors duration-200"></textarea>
+                         </div>
+                         <button type="submit" class="w-full bg-purple-600 text-white font-bold py-3 px-8 rounded-lg text-lg uppercase tracking-wider btn-primary" style="box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); transform: none;">
+                           Send It
+                         </button>
+                         <p id="form-message" class="text-center mt-4"></p>
+                     </form>
+                 </div>
+            </div>
+        </section>
+
+        <section id="bento-gallery" class="scroll-animate">
+            <h2 class="text-4xl font-bold text-center mb-12 neon-glow">Get to know ENHYPEN</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] gap-4 max-w-6xl mx-auto">
+                <div class="col-span-2 row-span-2 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3OTRnZTBzMGRidWViOXEyMDgxbHV4aWcyMnY1dmxreDN1eDV0aWQ5ciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/eR1R0GQXD0mbsKO4o7/giphy.gif" alt="K-Pop Dance" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-1 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExazJ3aHdtbTAwMmk0Y3d4bzN6eGxydWE0cm5rMTE4ZHZrb3FzcGdxYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dzYHcopR2NOre8oP0Y/giphy.gif" alt="Coffee Art" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-1 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                     <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3enVhNWY1cjB4bzdmb2x4cHNkc21qc3I1anQxemZheHdhYnB2aGE3dyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/gVAU6QZ0iIqktrr51m/giphy.gif" alt="K-Pop Lightsticks" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-2 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                      <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3MXdka2M3MHE5YXZiemtiend1ZWJ6eDVoc2tid2NndzZldXhzZ2t4bCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2jLbk4s1bnZc3Olgoj/giphy.gif" alt="Cafe Interior" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-1 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3emp0ZG82dGh4ZTV2anRreGpyNzVmbmJramowMmI3M293bWJ1emZuOSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/OftWe0E2qNBj367iZw/giphy.gif" alt="K-Pop Heart" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-1 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaHB4YnlsbXB0dHNnemRwdWZheGppZTNlN3E3MzFzN2ptdHBycnZtcSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/GhiQwSL32pWypv9NZb/giphy.gif" alt="Cafe Pastries" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                <div class="col-span-2 row-span-2 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMjFmN29kOTdhMmRpY3dhZGlrZHI0b3h5dTlwYW16Y3BkcDVteGlhciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/iLO1kUVj0dOU0BCf13/giphy.gif" alt="K-Pop Concert" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+                 <div class="col-span-2 row-span-1 rounded-lg overflow-hidden shadow-lg group bg-black/20">
+                    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnFwdzc4cmpsaHVzdzBjOTRncHplZzdzMDU1M2hvMnRleDVqYXA4ciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/hb42Yk0ZzYGXwLaJQ7/giphy.gif" alt="Seoul Night View" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500">
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-black/50 py-8">
+        <div class="container mx-auto px-6 text-center text-gray-400">
+            <p>&copy; 2025 Bite Me! All Rights Reserved.</p>
+            <p>Ayumi Takahashi</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="https://www.facebook.com/ayutakahashi1905" class="hover:text-pink-400 transition duration-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                </a>
+                <a href="https://www.tiktok.com/@ayuchan293" class="hover:text-pink-400 transition duration-300">
+                   <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.82s.51.5 0 0A4.24 4.24 0 0 1 12.21 3H12v6.2a2.83 2.83 0 0 1-2.82 2.82A2.83 2.83 0 0 1 6.36 9.2a2.83 2.83 0 0 1 2.82-2.82h.06v-2.1h-.06A4.93 4.93 0 0 0 4.2 9.2a4.93 4.93 0 0 0 4.92 4.92A4.93 4.93 0 0 0 14.04 9.2V3h2.56Z"/></svg>
+                </a>
+                 <a href="#" class="hover:text-pink-400 transition duration-300">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363-.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.013-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427.465C9.53 2.013 9.884 2 12.315 2zM12 8.118c-2.147 0-3.882 1.735-3.882 3.882s1.735 3.882 3.882 3.882 3.882-1.735 3.882-3.882S14.147 8.118 12 8.118zM12 14.162c-1.205 0-2.182-.977-2.182-2.182s.977-2.182 2.182-2.182 2.182.977 2.182 2.182-.977 2.182-2.182 2.182zM16.838 7.846a1.237 1.237 0 11-2.474.002 1.237 1.237 0 012.474-.002z" clip-rule="evenodd" /></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const starContainer = document.getElementById('star-container');
+            const numStars = 100;
+            for (let i = 0; i < numStars; i++) {
+                let star = document.createElement('div');
+                star.className = 'star';
+                let size = Math.random() * 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                star.style.animationDuration = `${(Math.random() * 3) + 2}s`;
+                starContainer.appendChild(star);
+            }
+
+            const cursor = document.querySelector('.custom-cursor');
+            const dot = document.querySelector('.cursor-dot');
+            const hoverables = document.querySelectorAll('a, button, input, textarea, [onclick], .song-item');
+
+            document.addEventListener('mousemove', e => {
+                dot.style.left = `${e.clientX}px`;
+                dot.style.top = `${e.clientY}px`;
+
+                cursor.animate({
+                    left: `${e.clientX}px`,
+                    top: `${e.clientY}px`
+                }, { duration: 500, fill: "forwards" });
+            });
+            
+            hoverables.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('pointer'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('pointer'));
+            });
+
+            const scrollElements = document.querySelectorAll('.scroll-animate');
+            const elementInView = (el, dividend = 1) => {
+                const elementTop = el.getBoundingClientRect().top;
+                return (
+                    elementTop <= (window.innerHeight || document.documentElement.clientHeight) / dividend
+                );
+            };
+
+            const displayScrollElement = (element) => {
+                element.classList.add('visible');
+            };
+
+            const handleScrollAnimation = () => {
+                scrollElements.forEach((el) => {
+                    if (elementInView(el, 1.25)) {
+                        displayScrollElement(el);
+                    }
+                });
+            };
+            
+            window.addEventListener('scroll', handleScrollAnimation);
+            handleScrollAnimation();
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileNavLinks = document.querySelectorAll('#mobile-menu a');
+            
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            const songItems = document.querySelectorAll('.song-item');
+            const nowPlayingSong = document.getElementById('now-playing-song');
+            const audioPlayer = document.getElementById('audio-player');
+
+            songItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const songName = item.getAttribute('data-song');
+                    const songSrc = `music/${songName}.mp3`;
+
+                    songItems.forEach(el => el.classList.remove('active-song'));
+                    
+                    item.classList.add('active-song');
+                    
+                    nowPlayingSong.textContent = songName.replace(/-/g, ' ');
+                    
+                    audioPlayer.src = songSrc;
+                    audioPlayer.play().catch(error => {
+                        console.error("Error playing audio:", error);
+                        nowPlayingSong.textContent = `Error: Could not load ${songName}.mp3`;
+                    });
+                });
+            });
+
+
+            const carouselImages = document.querySelectorAll('#image-carousel .carousel-image');
+            let currentImageIndex = 0;
+
+            if (carouselImages.length > 0) {
+                setInterval(() => {
+                    carouselImages[currentImageIndex].classList.remove('opacity-100');
+                    carouselImages[currentImageIndex].classList.add('opacity-0');
+
+                    currentImageIndex = (currentImageIndex + 1) % carouselImages.length;
+
+                    carouselImages[currentImageIndex].classList.remove('opacity-0');
+                    carouselImages[currentImageIndex].classList.add('opacity-100');
+                }, 4000); 
+            }
+            
+            const contactForm = document.getElementById('contact-form');
+            const formMessage = document.getElementById('form-message');
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                formMessage.textContent = "Thank you! We'll get back to you soon.";
+                formMessage.style.color = '#00ffff';
+                contactForm.reset();
+                setTimeout(() => {
+                    formMessage.textContent = '';
+                }, 4000);
+            });
+        });
+    </script>
+</body>
+</html>
+
